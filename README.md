@@ -1,7 +1,7 @@
 # Darts Time Series TFM Forecasting
 
 A complete set of Python solutions for the optimization of Torch Forecasting Model (TFM) parameters for time series forecasting with Darts.
-![alt text](https://github.com/markwkiehl/medium_darts/blob/b69a4222e9273dac65a8fc22ceb9134d231dd3c1/medium%20darts%20sine_gaussian_noise_covariate%20multivariate(3).png "")
+<p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(3).png"></p>
 
 This article provides solutions to all of the pain points I experienced while working with Darts Torch Forecasting Models (TFM). The Darts terminology is explained, clarifying what univariate and multivariate series are, and the purpose and benefits of static, past, and future covariates. A model selection process is discussed that narrows down the wide choice of model options. A single synthetic data set that includes noisy multivariate series, and covariates is provided for testing models. A model splitting Python function and methodology that works with any Darts model is proposed. A solution for solving for the TFM model arguments input_chunk_length and output_chunk_length maximum values, and then optimization of those hyperparameters is provided. And then finally, tools for slicing past and future covariates to the required time span so that they work the first time when you train and run a prediction on a PyTorch (Lightning)-based model.
 
@@ -59,7 +59,7 @@ What isn't covered by the library and the examples is modeling with multiple tim
 
 # Synthetic Data Set
 Using examples from the Darts documentation and the Darts time series generation tools, I came up with a synthetic data set that works well for challenging most of the Darts models. The primary univariate signal has seasonality, and noise that gets worse as time progresses. It has options to return a multivariate noisy series with three components (columns), each with an optional trend, and a sinusoidal covariate. The length of the series is adjustable, but defaults to a minimum recommend length of 400 rows for model training. The index is of type datetime and the start of that date can be adjusted. You can easily convert the index to an integer.
-![alt text] (https://github.com/markwkiehl/medium_darts/blob/98f84d3e157b76782131c578f6844bd538c82a74/medium%20darts%20sine_gaussian_noise_covariate%20multivariate(1).png "")
+<p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(1).png"></p>
 
 The file 'medium_darts.py' on the GitHub repository contains the function sine_gaussian_noise_covariate() and examples on how to use it. That example also shows how to use plt_darts_ts_stacked() to quickly visualize the signals. 
 All of the examples in this multi-part series of articles will use this synthetic series for the training of models because it provides data for demonstrating how to:
@@ -79,7 +79,8 @@ I created a splitting function and methodology that works for any Darts model, a
 The function get_darts_model_splits() accepts a series ts, and then allocations specified as a percentages to divide up the series to train, val_series, and test. Series test is then allocated to pred_input (optional) and pred_steps, but the best practice is for that allocation not to add up to 100% so that some is left over for future covariates. Note that pred_steps or n when passed to .predict() is not a series, but the number of rows that will be the forecast / prediction interval. 
 
 The series train, val_series, and test all follow each other sequentially according to the source series ts index. If val_series is not employed, then test follows train. The series pred_input is allocated from the beginning of series test when employed. When not using pred_input, pred_steps starts at the beginning of test.
-![alt text] (https://github.com/markwkiehl/medium_darts/blob/3bfca0986e12114323682119cccb6f657bd33c4f/get_darts_model_spits.png "Allocation of series ts to train, val_series, pred_input, & pred_steps")
+
+<p><img src="assets/get_darts_model_spits.png" alt="Allocation of series ts to train, val_series, pred_input, & pred_steps" title="Allocation of series ts to train, val_series, pred_input, & pred_steps"></p>
 
 For TFMs, you typically allocate most of the series 'ts' to train, and then smaller amounts to 'val_series', 'pred_input', and pred_steps. 
 
@@ -129,11 +130,14 @@ Using get_darts_tfm_arguments(), the maximum values for input_chunk_length, outp
 The coarse optimization increments the values for input_chunk_length and output_chunk_length in increments of powers of 2 (²⁰=1, ²¹=2, ²²=4, ²³=8, …) and then tries all combinations that respect the model specific requirements. After the coarse optimization is complete, then a fine optimization is optionally (highly recommended) performed, and the best set of values are eventually returned.
 
 As demonstrated in the example within the medium_darts.py file, after optimizing input_chunk_length, output_chunk_length with get_darts_tfm_arguments_optimized(), the trained model is saved to a local file. Saving the file is highly recommended, especially since it will take a considerable amount of time to optimize the two model arguments. Once you do, when you retrieve it later, you have access to everything you need to use that trained model to run a prediction on the same, or a (newer) series. 
+
 # Slicing Covariates for Model Training
 With optimized input_chunk_length and output_chunk_length values in hand, you are now ready to prepare the past and future covariates for model training and prediction. The function slice_tfm_covariates_for_model_training() makes this easy by slicing them to the minimum time span required, and optionally min/max scaling them. It not only prepares past_covariates and future_covariates, but also val_past_covariates and val_future_covariates needed when val_series is passed to model.fit(). 
+
 # Fit & Predict
 The hard work is now done. As demonstrated by the examples provided in the medium_darts.py file, it is a simple matter to initialize a model with the optimized input_chunk_length and output_chunk_length arguments, and pass the other inputs to the model .fit() and .predict() method. Plotting the results is made easy by the use of plt_model_training() to see all of the inputs to the model and the result.
-![alt text](https://github.com/markwkiehl/medium_darts/blob/6df90dad01a173d5da6f00e89bb62478049940d9/medium%20darts%20sine_gaussian_noise_covariate%20multivariate(2).png "")
+<p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(2).png"</p>
+
 # Forecasts Using a Trained Model
 The example in the medium_darts.py bundled under the function test_all_past_future_static_covariate_trained_models_against_new_series() demonstrates how to read a saved trained model and then run a prediction using another series. Series splitting is much more simple since only one target series needs to be passed to the model.predict() method. How to do that series splitting can be found in the Darts TimeSeries functions page, and by reviewing the example I provided. The slicing of past and future covariates is slightly different for only the model.predict() method, so I created the function slice_tfm_covariates_for_trained_model() to make that easy. And finally, the function plt_model_trained() makes it easy to visualize the results of that prediction.
 ![alt text](https://github.com/markwkiehl/medium_darts/blob/e8dcc111170f59fc4f1b5ee05201ad89b06ecf7d/medium%20darts%20sine_gaussian_noise_covariate%20multivariate(3).png "Visualizing a trained model forecast on a new series with plt_model_trained()")
