@@ -1,2 +1,2 @@
-# medium_darts_tfm
- Darts Time Series TFM Forecasting
+# medium_darts
+ Articles published on Medium about Darts time series library
