@@ -35,22 +35,22 @@ A few things to note that are not in the forecasting models table, but are descr
 - Those LFM's that don't require a seasonal period typically have a lags argument that should be specified and optimized. If covariates are employed, then you must specify an associated lag argument such as lags_past_covariates and/or lags_future_covariates.
 
 # GitHub Repository
-All of the code including the functions and the examples on using them in this series of articles is hosted on GitHub in the Python file medium_darts.py. This code was built on Python 3.11.2, Darts v0.26.0, Pandas 2.1.1, TensorFlow v2.15.0, and others. You can see how to install Darts by visiting this link.
+All of the code including the functions and the examples on using them in this series of articles is hosted on GitHub in the Python file medium_darts_tfm.py. This code was built on Python 3.11.2, Darts v0.26.0, Pandas 2.1.1, TensorFlow v2.15.0, and others. You can see how to install Darts by visiting this link.
 
-To use a function from the medium_darts.py file, add the file to the same folder as where your Python file exists, and then in that Python file, include the function of interest. Example:
+To use a function from the medium_darts_tfm.py file, add the file to the same folder as where your Python file exists, and then in that Python file, include the function of interest. Example:
 ```      
 from medium_darts import sine_gaussian_noise_covariate
 
 df = sine_gaussian_noise_covariate(add_trend=False, include_covariate=True)
 ```
 
-At the end of the Python file medium_darts.py are examples on how to:
+At the end of the Python file medium_darts_tfm.py are examples on how to:
 - Create synthetic time series data using sine_gaussian_noise_covariate() and then plot the series using plt_darts_ts_stacked().
 - Use function get_darts_model_splits() to split a series into train, val_series, test, pred_input, and get the pred_steps (n). 
 - Optimization of input_chunk_length & output_chunk_length for all TFMs that support past, future, & static covariates and multivariate series. Each trained model is saved, and then the best result is plotted. 
 - Using the trained TFM's to generate a forecast for new multivariate series. 
 
-To find, train, and use trained Torch Forecasting Models, you can follow the two examples associated with the last two bullet points above. In the Python file medium_darts.py they are organized under functions named:
+To find, train, and use trained Torch Forecasting Models, you can follow the two examples associated with the last two bullet points above. In the Python file medium_darts_tfm.py they are organized under functions named:
 - train_tfm_that_support_past_future_static_covariates()
 - test_all_past_future_static_covariate_trained_models_against_new_series()
 
@@ -61,14 +61,14 @@ What isn't covered by the library and the examples is modeling with multiple tim
 Using examples from the Darts documentation and the Darts time series generation tools, I came up with a synthetic data set that works well for challenging most of the Darts models. The primary univariate signal has seasonality, and noise that gets worse as time progresses. It has options to return a multivariate noisy series with three components (columns), each with an optional trend, and a sinusoidal covariate. The length of the series is adjustable, but defaults to a minimum recommend length of 400 rows for model training. The index is of type datetime and the start of that date can be adjusted. You can easily convert the index to an integer.
 <p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(1).png"></p>
 
-The file 'medium_darts.py' on the GitHub repository contains the function sine_gaussian_noise_covariate() and examples on how to use it. That example also shows how to use plt_darts_ts_stacked() to quickly visualize the signals. 
+The file 'medium_darts_tfm.py' on the GitHub repository contains the function sine_gaussian_noise_covariate() and examples on how to use it. That example also shows how to use plt_darts_ts_stacked() to quickly visualize the signals. 
 All of the examples in this multi-part series of articles will use this synthetic series for the training of models because it provides data for demonstrating how to:
 - Automatic optimization of input_chunk_length and output_chunk_length for multiple TFMs in one execution.
 - Training models with a multivariate target series, static covariates, past covariate, and future covariate series.
 - Forecasting a new series using a trained model.
 
 # Split Options for Model Training
-Before you split a series for modeling, you want to add any static covariates to the source series. The Darts documentation covers this pretty well, and it is also demonstrated in the examples from the medium_darts.py file. 
+Before you split a series for modeling, you want to add any static covariates to the source series. The Darts documentation covers this pretty well, and it is also demonstrated in the examples from the medium_darts_tfm.py file. 
 
 All of the Darts TFMs support the assignment of a validation series to the .fit() method via val_series, but most of the LFM's do not (the exceptions are: LightGBMModel,   XGBModel, and CatBoostModel). 
 
@@ -129,17 +129,17 @@ Using get_darts_tfm_arguments(), the maximum values for input_chunk_length, outp
 
 The coarse optimization increments the values for input_chunk_length and output_chunk_length in increments of powers of 2 (²⁰=1, ²¹=2, ²²=4, ²³=8, …) and then tries all combinations that respect the model specific requirements. After the coarse optimization is complete, then a fine optimization is optionally (highly recommended) performed, and the best set of values are eventually returned.
 
-As demonstrated in the example within the medium_darts.py file, after optimizing input_chunk_length, output_chunk_length with get_darts_tfm_arguments_optimized(), the trained model is saved to a local file. Saving the file is highly recommended, especially since it will take a considerable amount of time to optimize the two model arguments. Once you do, when you retrieve it later, you have access to everything you need to use that trained model to run a prediction on the same, or a (newer) series. 
+As demonstrated in the example within the medium_darts_tfm.py file, after optimizing input_chunk_length, output_chunk_length with get_darts_tfm_arguments_optimized(), the trained model is saved to a local file. Saving the file is highly recommended, especially since it will take a considerable amount of time to optimize the two model arguments. Once you do, when you retrieve it later, you have access to everything you need to use that trained model to run a prediction on the same, or a (newer) series. 
 
 # Slicing Covariates for Model Training
 With optimized input_chunk_length and output_chunk_length values in hand, you are now ready to prepare the past and future covariates for model training and prediction. The function slice_tfm_covariates_for_model_training() makes this easy by slicing them to the minimum time span required, and optionally min/max scaling them. It not only prepares past_covariates and future_covariates, but also val_past_covariates and val_future_covariates needed when val_series is passed to model.fit(). 
 
 # Fit & Predict
-The hard work is now done. As demonstrated by the examples provided in the medium_darts.py file, it is a simple matter to initialize a model with the optimized input_chunk_length and output_chunk_length arguments, and pass the other inputs to the model .fit() and .predict() method. Plotting the results is made easy by the use of plt_model_training() to see all of the inputs to the model and the result.
+The hard work is now done. As demonstrated by the examples provided in the medium_darts_tfm.py file, it is a simple matter to initialize a model with the optimized input_chunk_length and output_chunk_length arguments, and pass the other inputs to the model .fit() and .predict() method. Plotting the results is made easy by the use of plt_model_training() to see all of the inputs to the model and the result.
 <p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(2).png"</p>
 
 # Forecasts Using a Trained Model
-The example in the medium_darts.py bundled under the function test_all_past_future_static_covariate_trained_models_against_new_series() demonstrates how to read a saved trained model and then run a prediction using another series. Series splitting is much more simple since only one target series needs to be passed to the model.predict() method. How to do that series splitting can be found in the Darts TimeSeries functions page, and by reviewing the example I provided. The slicing of past and future covariates is slightly different for only the model.predict() method, so I created the function slice_tfm_covariates_for_trained_model() to make that easy. And finally, the function plt_model_trained() makes it easy to visualize the results of that prediction.
+The example in the medium_darts_tfm.py bundled under the function test_all_past_future_static_covariate_trained_models_against_new_series() demonstrates how to read a saved trained model and then run a prediction using another series. Series splitting is much more simple since only one target series needs to be passed to the model.predict() method. How to do that series splitting can be found in the Darts TimeSeries functions page, and by reviewing the example I provided. The slicing of past and future covariates is slightly different for only the model.predict() method, so I created the function slice_tfm_covariates_for_trained_model() to make that easy. And finally, the function plt_model_trained() makes it easy to visualize the results of that prediction.
 
 <p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(3).png" alt="Visualizing a trained model forecast on a new series with plt_model_trained()" title="Visualizing a trained model forecast on a new series with plt_model_trained()"></p>
 
@@ -149,6 +149,6 @@ The Darts library does an incredible job of simplifying the use of a wide variet
 # References
 All images created by the author.
 
-GitHub repository with functions and examples all contained within the single medium_darts.py Python file. 
+GitHub repository with functions and examples all contained within the single medium_darts_tfm.py Python file. 
 
 [Darts table for forecasting model selection](https://github.com/unit8co/darts?tab=readme-ov-file#forecasting-models)
