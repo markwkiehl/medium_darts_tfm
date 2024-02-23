@@ -140,9 +140,12 @@ The hard work is now done. As demonstrated by the examples provided in the mediu
 
 # Forecasts Using a Trained Model
 The example in the medium_darts.py bundled under the function test_all_past_future_static_covariate_trained_models_against_new_series() demonstrates how to read a saved trained model and then run a prediction using another series. Series splitting is much more simple since only one target series needs to be passed to the model.predict() method. How to do that series splitting can be found in the Darts TimeSeries functions page, and by reviewing the example I provided. The slicing of past and future covariates is slightly different for only the model.predict() method, so I created the function slice_tfm_covariates_for_trained_model() to make that easy. And finally, the function plt_model_trained() makes it easy to visualize the results of that prediction.
-![alt text](https://github.com/markwkiehl/medium_darts/blob/e8dcc111170f59fc4f1b5ee05201ad89b06ecf7d/medium%20darts%20sine_gaussian_noise_covariate%20multivariate(3).png "Visualizing a trained model forecast on a new series with plt_model_trained()")
+
+<p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(3).png" alt="Visualizing a trained model forecast on a new series with plt_model_trained()" title="Visualizing a trained model forecast on a new series with plt_model_trained()"></p>
+
 # Conclusions
 The Darts library does an incredible job of simplifying the use of a wide variety of machine learning models for time series forecasting. The Python functions and examples presented in this article attempt to fill in some of the holes in the documentation, leading to a complete path for running Torch Forecasting Models against a multivariate data set with past, future, and static covariates. I truly hope this helps other Darts users. Please don't hesitate to contact me and let me know if this article helped you. 
+
 # References
 All images created by the author.
 
