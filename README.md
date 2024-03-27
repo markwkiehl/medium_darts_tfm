@@ -131,8 +131,9 @@ The coarse optimization increments the values for input_chunk_length and output_
 
 As demonstrated in the example within the medium_darts_tfm.py file, after optimizing input_chunk_length, output_chunk_length with get_darts_tfm_arguments_optimized(), the trained model is saved to a local file. Saving the file is highly recommended, especially since it will take a considerable amount of time to optimize the two model arguments. Once you do, when you retrieve it later, you have access to everything you need to use that trained model to run a prediction on the same, or a (newer) series. 
 
-# Slicing Covariates for Model Training
-With optimized input_chunk_length and output_chunk_length values in hand, you are now ready to prepare the past and future covariates for model training and prediction. The function slice_tfm_covariates_for_model_training() makes this easy by slicing them to the minimum time span required, and optionally min/max scaling them. It not only prepares past_covariates and future_covariates, but also val_past_covariates and val_future_covariates needed when val_series is passed to model.fit(). 
+# Slicing The Target Series For Covariates
+With optimized input_chunk_length and output_chunk_length values in hand, you are now ready to prepare a target series for model training and prediction. When using covariates, you have to be careful to slice the target series (for training & prediction) so that it is smaller than past and future covariates.
+The function slice_tfm_covariates_for_model_training() can be optionally used to slice covariates to the minimum time span required, and optionally min/max scaling them. It also generates val_past_covariates and val_future_covariates needed when val_series is passed to model.fit(). 
 
 # Fit & Predict
 The hard work is now done. As demonstrated by the examples provided in the medium_darts_tfm.py file, it is a simple matter to initialize a model with the optimized input_chunk_length and output_chunk_length arguments, and pass the other inputs to the model .fit() and .predict() method. Plotting the results is made easy by the use of plt_model_training() to see all of the inputs to the model and the result.
@@ -143,8 +144,18 @@ The example in the medium_darts_tfm.py bundled under the function test_all_past_
 
 <p><img src="assets/medium darts sine_gaussian_noise_covariate multivariate(3).png" alt="Visualizing a trained model forecast on a new series with plt_model_trained()" title="Visualizing a trained model forecast on a new series with plt_model_trained()"></p>
 
+# Optimization Using Backtesting
+Backtesting is also known as time-series cross-validation. It is a method of testing how a model would have performed if it had been used in the past. Typically moving time windows are used to calculate forecasts on historical data, and then the results are evaluated against the known result. If the model performs well on the test set of historical data, you can then have more confidence in its ability to make accurate predictions in the future.
+Backtesting can also be used to improve a model through hyperparameter tuning or feature selection. In order to have an unbiased performance estimate, backtesting should be performed in two consecutive periods:
+- A validation set is used to optimize the selection of features, and tune the hyper-parameters.
+- A test set is used to measure the performance of the model.
+
+In the file medium_darts_tfm.py, look for the example wrapped within the function named test_get_darts_tfm_arguments_optimized_via_backtesting() located toward the end of the file to execute a test using the dataset sine_gaussian_noise_covariate(). In this example, the model arguments input_chunk_length and output_chunk_length model arguments are optimized for each of the Torch Forecasting Models that support past, future, & static covariates and a multivariate series (TFTModel, DLinearModel, NLinearModel, TiDEModel).
+
+The same functions work equally well on the other Torch Forecasting Models, as demonstrated by the additional example wrapped in the function named test_get_darts_tfm_arguments_optimized_via_backtesting_with_darts_datasets() .
+
 # Conclusions
-The Darts library does an incredible job of simplifying the use of a wide variety of machine learning models for time series forecasting. The Python functions and examples presented in this article attempt to fill in some of the holes in the documentation, leading to a complete path for running Torch Forecasting Models against a multivariate data set with past, future, and static covariates. I truly hope this helps other Darts users. Please don't hesitate to contact me and let me know if this article helped you. 
+The Darts library does an incredible job of simplifying the use of a wide variety of machine learning models for time series forecasting. The Python functions and examples presented in this article attempt to fill in some of the holes in the documentation, leading to a complete path for running Torch Forecasting Models against a multivariate data set with past, future, and static covariates. Backtesting is a better method for optimizing hyperparameters for Darts Torch Forecasting Models because moving time windows are used to calculate forecasts on historical data. The functions provided make it easy to optimize the model arguments input_chunk_length and output_chunk_length for any TFM. I truly hope this helps other Darts users. Please don't hesitate to contact me and let me know if this article helped you. 
 
 # References
 All images created by the author.
